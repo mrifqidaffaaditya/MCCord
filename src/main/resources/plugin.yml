@@ -1,0 +1,41 @@
+name: MCCord
+version: '1.0'
+main: com.keidev.mccord.MCCord
+api-version: '1.21'
+author: KeiDev
+website: https://www.keidev.my.id
+description: A powerful Minecraft-Discord integration plugin with real-time server status, announcements, alerts, reports, and management commands.
+
+commands:
+  mccord:
+    description: Manage MCCord plugin
+    usage: /<command> <reload | maintenance <true|false> | announce <message> | alert <player> <message> | report <reason>>
+    permission: mccord.admin
+  announce:
+    description: Send an announcement to Discord
+    usage: /<command> <message>
+    permission: mccord.announce
+  alert:
+    description: Send an alert to Discord
+    usage: /<command> <player> <message>
+    permission: mccord.alert
+  report:
+    description: Send a report to Discord
+    usage: /<command> <reason>
+    permission: mccord.report
+permissions:
+  mccord.admin:
+    description: Allows managing MCCord plugin (reload and maintenance)
+    default: op
+  mccord.announce:
+    description: Allows sending announcements to Discord
+    default: op
+  mccord.alert:
+    description: Allows sending alerts to Discord
+    default: op
+  mccord.report:
+    description: Allows sending reports to Discord
+    default: op
+  mccord.staff:
+    description: Allows receiving staff reports
+    default: op

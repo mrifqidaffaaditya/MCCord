@@ -1,0 +1,200 @@
+# MCCord Configuration File
+# Ini adalah file konfigurasi untuk plugin MCCord, yang menghubungkan server Minecraft Anda dengan Discord.
+# Placeholder yang tersedia:
+# - {message}: Pesan dari perintah /announce (contoh: "Server maintenance").
+# - {sender}: Nama pengirim perintah (contoh: "Steve" atau "Console").
+# - {nl}: Baris baru di Discord embed, pemisah baris kosong (" ") di chat Minecraft, spasi di subtitle Minecraft.
+# - {reason}: Alasan dari perintah /alert atau /report (contoh: "Griefing").
+# - {player}: Nama pemain yang melapor di /report atau target di /alert (contoh: "Steve").
+
+discord:
+  bot-token: "YOUR_BOT_TOKEN_HERE"  # Token bot Discord Anda, dibutuhkan untuk koneksi ke Discord. Dapatkan dari https://discord.com/developers/applications
+  channels:
+    announce: "CHANNEL_ID_FOR_ANNOUNCE"  # ID channel Discord untuk pengumuman (/announce)
+    alert: "CHANNEL_ID_FOR_ALERT"       # ID channel Discord untuk alert (/alert)
+    report: "CHANNEL_ID_FOR_REPORT"     # ID channel Discord untuk laporan (/report)
+    status: "CHANNEL_ID_FOR_STATUS"     # ID channel Discord untuk status server real-time
+  status-update-interval: 60            # Interval pembaruan status server dalam detik (default: 60)
+
+embed:
+  server-status:
+    enable: true                        # Aktifkan/nonaktifkan status server real-time di Discord
+    online:
+      title:
+        enable: true                    # Aktifkan judul embed
+        text: "Server Status"           # Judul embed saat server online
+        url: null                       # URL opsional untuk judul (klik untuk membuka link)
+      color: "#00FF00"                  # Warna embed saat server online (hex, misalnya hijau)
+      description:
+        enable: true                    # Aktifkan deskripsi embed
+        text: "The server is currently online!" # Deskripsi saat server online
+      playerlist:
+        enable: true                    # Tampilkan daftar pemain online di embed
+        inline: false                   # Tampilkan field ini secara inline (true = sejajar, false = terpisah)
+      java:
+        enable: true                    # Tampilkan IP server Java di embed
+        inline: true                    # Tampilkan field ini secara inline
+        ip: "your.java.ip"              # IP server Java Anda
+      bedrock:
+        enable: true                    # Tampilkan IP dan port Bedrock di embed
+        inline: true                    # Tampilkan field ini secara inline
+        ip: "your.bedrock.ip"           # IP server Bedrock Anda
+        port: "19132"                   # Port server Bedrock (default: 19132)
+      tps:
+        enable: true                    # Tampilkan TPS (Ticks Per Second) di embed
+        inline: true                    # Tampilkan field ini secara inline
+      version:
+        enable: false                   # Tampilkan versi server di embed
+        inline: true                    # Tampilkan field ini secara inline
+      cpu:
+        enable: true                    # Tampilkan penggunaan CPU di embed
+        inline: true                    # Tampilkan field ini secara inline
+      ram:
+        enable: true                    # Tampilkan penggunaan RAM di embed
+        inline: true                    # Tampilkan field ini secara inline
+      timestamp: true                   # Tampilkan waktu pembaruan di embed
+      author:
+        enable: false                   # Aktifkan author di embed
+        text: "MCCord"                  # Teks author (opsional)
+        icon: null                      # URL ikon author (opsional)
+      footer:
+        enable: false                   # Aktifkan footer di embed
+        text: "Powered by KeiDev"       # Teks footer (opsional)
+        icon: null                      # URL ikon footer (opsional)
+      image:
+        enable: false                   # Aktifkan gambar besar di embed
+        url: null                       # URL gambar besar (opsional)
+      thumbnail:
+        enable: false                   # Aktifkan thumbnail di embed
+        url: null                       # URL thumbnail (opsional)
+    maintenance:
+      title:
+        enable: true                    # Aktifkan judul embed
+        text: "Server Under Maintenance" # Judul embed saat maintenance
+        url: null                       # URL opsional untuk judul
+      color: "#FFA500"                  # Warna embed saat maintenance (hex, misalnya oranye)
+      description:
+        enable: true                    # Aktifkan deskripsi embed
+        text: "The server is currently under maintenance. Please check back later!" # Deskripsi saat maintenance
+      timestamp: true                   # Tampilkan waktu pembaruan di embed
+      author:
+        enable: false                   # Aktifkan author di embed
+        text: "Server Bot"              # Teks author (opsional)
+        icon: null                      # URL ikon author (opsional)
+      footer:
+        enable: false                   # Aktifkan footer di embed
+        text: "Powered by KeiDev"       # Teks footer (opsional)
+        icon: null                      # URL ikon footer (opsional)
+      image:
+        enable: false                   # Aktifkan gambar besar di embed
+        url: null                       # URL gambar besar (opsional)
+      thumbnail:
+        enable: false                   # Aktifkan thumbnail di embed
+        url: null                       # URL thumbnail (opsional)
+    offline:
+      title:
+        enable: true                    # Aktifkan judul embed
+        text: "Server Offline"          # Judul embed saat offline
+        url: null                       # URL opsional untuk judul
+      color: "#FF0000"                  # Warna embed saat offline (hex, misalnya merah)
+      description:
+        enable: true                    # Aktifkan deskripsi embed
+        text: "The server is currently offline." # Deskripsi saat offline
+      timestamp: true                   # Tampilkan waktu pembaruan di embed
+      author:
+        enable: false                   # Aktifkan author di embed
+        text: "MCCord"                  # Teks author (opsional)
+        icon: null                      # URL ikon author (opsional)
+      footer:
+        enable: false                   # Aktifkan footer di embed
+        text: "Powered by KeiDev"       # Teks footer (opsional)
+        icon: null                      # URL ikon footer (opsional)
+      image:
+        enable: false                   # Aktifkan gambar besar di embed
+        url: null                       # URL gambar besar (opsional)
+      thumbnail:
+        enable: false                   # Aktifkan thumbnail di embed
+        url: null                       # URL thumbnail (opsional)
+  announce:
+    # Pengaturan embed Discord untuk /announce
+    title: "Server Announcement"        # Judul embed pengumuman di Discord
+    color: "#00FF00"                    # Warna embed pengumuman (hex, misalnya hijau)
+    description: "{nl}{nl}{message}"    # Deskripsi embed di Discord. Placeholder: {message} = pesan, {nl} = baris baru
+    field-announced-by:
+      name: "Announced by"              # Nama field untuk pengirim di Discord (nilai otomatis dari {sender})
+      inline: true                      # Tampilkan field ini secara inline
+    timestamp: true                     # Tampilkan waktu pengumuman di embed
+  alert:
+    # Pengaturan embed Discord untuk /alert
+    title: "Alert"                      # Judul embed alert di Discord
+    color: "#FF0000"                    # Warna embed alert (hex, misalnya merah)
+    description: "{nl}{nl}An alert has been issued for a player" # Deskripsi embed di Discord. Placeholder: {nl} = baris baru
+    field-target-player:
+      name: "Target Player"             # Nama field untuk pemain target di Discord (nilai otomatis dari {player})
+      inline: true                      # Tampilkan field ini secara inline
+    field-reason:
+      name: "Reason"                    # Nama field untuk alasan di Discord (nilai otomatis dari {reason})
+      inline: false                     # Tampilkan field ini secara inline
+    field-alerted-by:
+      name: "Alerted by"                # Nama field untuk pengirim di Discord (nilai otomatis dari {sender})
+      inline: true                      # Tampilkan field ini secara inline
+    timestamp: true                     # Tampilkan waktu alert di embed
+  report:
+    # Pengaturan embed Discord untuk /report
+    title: "Player Report"              # Judul embed laporan di Discord
+    color: "#FFFF00"                    # Warna embed laporan (hex, misalnya kuning)
+    description: "{nl}{nl}A player has submitted a report" # Deskripsi embed di Discord. Placeholder: {nl} = baris baru
+    field-reported-by:
+      name: "Reported by"               # Nama field untuk pelapor di Discord (nilai otomatis dari {player})
+      inline: true                      # Tampilkan field ini secara inline
+    field-reason:
+      name: "Reason"                    # Nama field untuk alasan di Discord (nilai otomatis dari {reason})
+      inline: false                     # Tampilkan field ini secara inline
+    timestamp: true                     # Tampilkan waktu laporan di embed
+
+# Pengaturan in-game untuk perintah
+announce:
+  # Pengaturan pesan dan notifikasi untuk /announce
+  message: "{nl}{nl}&6[Announcement] &e{message} &7- {sender}" # Pesan di chat Minecraft. Placeholder: {message}, {sender}, {nl}
+  title-mc: "&6Announcement"          # Judul di layar pemain Minecraft. Placeholder: {message}, {sender}
+  subtitle: "&e{message}{nl}&7By {sender}" # Subtitle di layar pemain. Placeholder: {message}, {sender}, {nl} = spasi
+  title-fade-in: 10                   # Durasi fade-in title (ticks, 20 ticks = 1 detik)
+  title-stay: 70                      # Durasi title tetap (ticks)
+  title-fade-out: 20                  # Durasi fade-out title (ticks)
+  # Notifikasi untuk semua pemain saat pengumuman
+  notify-players:
+    enable: true                      # Aktifkan/nonaktifkan notifikasi title dan sound untuk semua pemain
+    sound: "ENTITY_EXPERIENCE_ORB_PICKUP" # Nama suara Minecraft (lihat https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html)
+    sound-volume: 1.0                 # Volume suara (0.0 - 1.0)
+    sound-pitch: 1.0                  # Pitch suara (0.5 - 2.0)
+
+alert:
+  # Pengaturan pesan dan notifikasi untuk /alert
+  message: "{nl}{nl}&c[Alert] &e{reason} &7- Issued by: {sender}" # Pesan di chat Minecraft. Placeholder: {reason}, {sender}, {nl}
+  title-mc: "&cAlert"                 # Judul di layar pemain target. Placeholder: {reason}, {sender}
+  subtitle: "&e{reason}{nl}&7By {sender}" # Subtitle di layar pemain target. Placeholder: {reason}, {sender}, {nl} = spasi
+  title-fade-in: 10                   # Durasi fade-in title (ticks)
+  title-stay: 70                      # Durasi title tetap (ticks)
+  title-fade-out: 20                  # Durasi fade-out title (ticks)
+  broadcast-to-all: false             # Jika true, pesan dikirim ke semua pemain di chat
+  # Notifikasi untuk pemain target saat alert
+  notify-target:
+    enable: true                      # Aktifkan/nonaktifkan notifikasi title dan sound untuk target
+    sound: "ENTITY_EXPERIENCE_ORB_PICKUP" # Nama suara Minecraft
+    sound-volume: 1.0                 # Volume suara (0.0 - 1.0)
+    sound-pitch: 1.0                  # Pitch suara (0.5 - 2.0)
+
+report:
+  # Pengaturan pesan dan notifikasi untuk /report
+  staff-message: "{nl}{nl}&c[Report] &e{player} &7reported: &f{reason}" # Pesan ke staff di chat Minecraft. Placeholder: {player}, {reason}, {nl}
+  # Notifikasi untuk staff saat ada laporan baru
+  notify-staff:
+    enable: true                      # Aktifkan/nonaktifkan notifikasi title dan sound untuk staff
+    title: "&cNew Report!"            # Judul notifikasi untuk staff. Placeholder: {player}, {reason}
+    subtitle: "&e{player} &7reported: &f{reason}" # Subtitle notifikasi. Placeholder: {player}, {reason}, {nl} = spasi
+    title-fade-in: 10                 # Durasi fade-in title (ticks)
+    title-stay: 70                    # Durasi title tetap (ticks)
+    title-fade-out: 20                # Durasi fade-out title (ticks)
+    sound: "ENTITY_EXPERIENCE_ORB_PICKUP" # Nama suara Minecraft
+    sound-volume: 1.0                 # Volume suara (0.0 - 1.0)
+    sound-pitch: 1.0                  # Pitch suara (0.5 - 2.0)
