@@ -100,9 +100,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-.gradle
+.gradle/
 build/
-.idea
+.idea/
 
 # Ignore Gradle GUI config
 gradle-app.setting
