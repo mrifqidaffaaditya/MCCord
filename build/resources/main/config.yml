@@ -14,7 +14,7 @@ discord:
     alert: "CHANNEL_ID_FOR_ALERT"       # ID channel Discord untuk alert (/alert)
     report: "CHANNEL_ID_FOR_REPORT"     # ID channel Discord untuk laporan (/report)
     status: "CHANNEL_ID_FOR_STATUS"     # ID channel Discord untuk status server real-time
-  status-update-interval: 60            # Interval pembaruan status server dalam detik (default: 60)
+  status-update-interval: 60            # Interval pembaruan status server dalam detik (default: 60) Minimal 30 detik, kalau tidak pasti akan error
 
 embed:
   server-status:
@@ -39,7 +39,6 @@ embed:
         enable: true                    # Tampilkan IP dan port Bedrock di embed
         inline: true                    # Tampilkan field ini secara inline
         ip: "your.bedrock.ip"           # IP server Bedrock Anda
-        port: "19132"                   # Port server Bedrock (default: 19132)
       tps:
         enable: true                    # Tampilkan TPS (Ticks Per Second) di embed
         inline: true                    # Tampilkan field ini secara inline

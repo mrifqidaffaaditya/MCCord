@@ -1,6 +1,7 @@
 package com.keidev.mccord;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,8 +19,10 @@ public class ServerStatus {
     private String statusMessageId;
     private final File messageFile;
     private final File maintenanceFile;
-    private BukkitRunnable statusTask;
-    private boolean isMaintenance;
+    private volatile BukkitRunnable statusTask;
+    private volatile boolean isMaintenance;
+    private long lastUpdateTime; // Waktu terakhir pembaruan
+    private int updateIntervalSeconds; // Interval pembaruan dalam detik
 
     public ServerStatus(MCCord plugin) {
         this.plugin = plugin;
@@ -27,6 +30,8 @@ public class ServerStatus {
         this.maintenanceFile = new File(plugin.getDataFolder(), "maintenance.txt");
         this.statusMessageId = loadMessageId();
         this.isMaintenance = loadMaintenanceStatus();
+        this.lastUpdateTime = Instant.now().getEpochSecond(); // Inisialisasi dengan waktu saat ini
+        this.updateIntervalSeconds = plugin.getPluginConfig().getInt("discord.status-update-interval", 60);
     }
 
     public void start() {
@@ -42,20 +47,30 @@ public class ServerStatus {
             return;
         }
 
-        int interval = plugin.getPluginConfig().getInt("discord.status-update-interval", 60) * 20;
+        updateIntervalSeconds = plugin.getPluginConfig().getInt("discord.status-update-interval", 60);
+        int intervalTicks = Math.max(updateIntervalSeconds * 20, 600); // Minimum 30 detik (600 ticks)
+
+        // Update pertama kali secara langsung
+        updateStatus(channel);
 
         statusTask = new BukkitRunnable() {
             @Override
             public void run() {
+                if (plugin.getJDA() == null || plugin.getJDA().getStatus() != JDA.Status.CONNECTED) {
+                    return; // Jangan jalankan jika JDA tidak aktif
+                }
+                lastUpdateTime = Instant.now().getEpochSecond(); // Simpan waktu terakhir pembaruan
                 updateStatus(channel);
             }
         };
-        statusTask.runTaskTimerAsynchronously(plugin, 0L, interval);
+        statusTask.runTaskTimerAsynchronously(plugin, 0L, intervalTicks);
+        plugin.getLogger().info("Server status updates started with interval: " + (intervalTicks / 20) + " seconds.");
     }
 
     public void stop() {
         if (statusTask != null && !statusTask.isCancelled()) {
             statusTask.cancel();
+            statusTask = null;
             String channelId = plugin.getChannelId("status");
             if (channelId == null || channelId.isEmpty()) {
                 plugin.getLogger().warning("Status channel ID is not configured in config.yml!");
@@ -63,7 +78,7 @@ public class ServerStatus {
             }
 
             TextChannel channel = plugin.getJDA() != null ? plugin.getJDA().getTextChannelById(channelId) : null;
-            if (channel != null) {
+            if (channel != null && plugin.getJDA() != null && plugin.getJDA().getStatus() == JDA.Status.CONNECTED) {
                 EmbedBuilder embed = createOfflineEmbed();
                 sendEmbed(channel, embed);
             }
@@ -110,7 +125,7 @@ public class ServerStatus {
             embed.addField("Java", plugin.getPluginConfig().getString("embed.server-status.online.java.ip", "Unknown"), plugin.getPluginConfig().getBoolean("embed.server-status.online.java.inline"));
         }
         if (plugin.getPluginConfig().getBoolean("embed.server-status.online.bedrock.enable", true)) {
-            embed.addField("Bedrock", plugin.getPluginConfig().getString("embed.server-status.online.bedrock.ip", "Unknown") + ":" + plugin.getPluginConfig().getString("embed.server-status.online.bedrock.port", "Unknown"), plugin.getPluginConfig().getBoolean("embed.server-status.online.bedrock.inline"));
+            embed.addField("Bedrock", plugin.getPluginConfig().getString("embed.server-status.online.bedrock.ip", "Unknown"), plugin.getPluginConfig().getBoolean("embed.server-status.online.bedrock.inline"));
         }
         if (plugin.getPluginConfig().getBoolean("embed.server-status.online.tps.enable", true)) {
             embed.addField("TPS (1m)", String.format("%.2f", tps[0]), plugin.getPluginConfig().getBoolean("embed.server-status.online.tps.inline"));
@@ -124,6 +139,11 @@ public class ServerStatus {
         if (plugin.getPluginConfig().getBoolean("embed.server-status.online.ram.enable", true)) {
             embed.addField("RAM Usage", usedMemory + " MB / " + totalMemory + " MB", plugin.getPluginConfig().getBoolean("embed.server-status.online.ram.inline"));
         }
+
+        // Field untuk waktu refresh berikutnya
+        long nextUpdateTime = lastUpdateTime + updateIntervalSeconds;
+        embed.addField("Next Refresh", "<t:" + nextUpdateTime + ":R>", true);
+
         if (plugin.getPluginConfig().getBoolean("embed.server-status.online.timestamp", true)) {
             embed.setTimestamp(Instant.now());
         }
@@ -161,6 +181,11 @@ public class ServerStatus {
         if (plugin.getPluginConfig().getBoolean("embed.server-status.maintenance.description.enable", true)) {
             embed.setDescription(plugin.getPluginConfig().getString("embed.server-status.maintenance.description.text"));
         }
+
+        // Field untuk waktu refresh berikutnya
+        long nextUpdateTime = lastUpdateTime + updateIntervalSeconds;
+        embed.addField("Next Refresh", "<t:" + nextUpdateTime + ":R>", true);
+
         if (plugin.getPluginConfig().getBoolean("embed.server-status.maintenance.timestamp", true)) {
             embed.setTimestamp(Instant.now());
         }
@@ -223,16 +248,19 @@ public class ServerStatus {
     }
 
     private void sendEmbed(TextChannel channel, EmbedBuilder embed) {
-        if (channel == null || plugin.getJDA() == null) {
-            plugin.getLogger().warning("Cannot send embed: Channel or JDA is null!");
+        if (channel == null || plugin.getJDA() == null || plugin.getJDA().getStatus() != JDA.Status.CONNECTED) {
+            plugin.getLogger().warning("Cannot send embed: Channel or JDA is null or not connected!");
             return;
         }
 
         if (statusMessageId == null) {
-            channel.sendMessageEmbeds(embed.build()).queue(message -> {
-                statusMessageId = message.getId();
-                saveMessageId(statusMessageId);
-            }, failure -> plugin.getLogger().warning("Failed to send initial status embed: " + failure.getMessage()));
+            channel.sendMessageEmbeds(embed.build()).queue(
+                    message -> {
+                        statusMessageId = message.getId();
+                        saveMessageId(statusMessageId);
+                    },
+                    failure -> plugin.getLogger().warning("Failed to send initial status embed: " + failure.getMessage())
+            );
         } else {
             channel.editMessageEmbedsById(statusMessageId, embed.build()).queue(
                     success -> {},
@@ -288,7 +316,7 @@ public class ServerStatus {
         this.isMaintenance = maintenance;
         saveMaintenanceStatus(maintenance);
         String channelId = plugin.getChannelId("status");
-        if (channelId != null && !channelId.isEmpty() && plugin.getJDA() != null) {
+        if (channelId != null && !channelId.isEmpty() && plugin.getJDA() != null && plugin.getJDA().getStatus() == JDA.Status.CONNECTED) {
             TextChannel channel = plugin.getJDA().getTextChannelById(channelId);
             if (channel != null) {
                 updateStatus(channel);

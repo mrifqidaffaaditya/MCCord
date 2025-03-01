@@ -28,13 +28,11 @@ public class MCCord extends JavaPlugin {
         saveDefaultConfig();
         config = getConfig();
 
-        // Inisialisasi bot secara asynchronous
         initializeBotAsync().exceptionally(throwable -> {
             getLogger().warning(ChatColor.RED + "Bot initialization failed. Please set a valid token in config.yml and use /mccord reload.");
             return null;
         });
 
-        // Register commands
         getCommand("announce").setExecutor(new AnnounceCommand(this));
         getCommand("alert").setExecutor(new AlertCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
@@ -42,7 +40,6 @@ public class MCCord extends JavaPlugin {
         getCommand("mccord").setExecutor(mccordCommand);
         getCommand("mccord").setTabCompleter(mccordCommand);
 
-        // Pesan enable yang menarik dengan warna dan hiasan
         getLogger().info("");
         getLogger().info(ChatColor.YELLOW + ChatColor.BOLD.toString() + "=====================================");
         getLogger().info(ChatColor.GOLD + ChatColor.BOLD.toString() + " __  __  ___ ___            _ ");
@@ -67,7 +64,6 @@ public class MCCord extends JavaPlugin {
         }
         shutdownBot();
 
-        // Pesan disable yang menarik dengan warna dan hiasan
         getLogger().info("");
         getLogger().info(ChatColor.RED + ChatColor.BOLD.toString() + "=====================================");
         getLogger().info(ChatColor.DARK_RED + ChatColor.BOLD.toString() + " MCCord Plugin Disabled!");
@@ -111,6 +107,12 @@ public class MCCord extends JavaPlugin {
         if (jda != null) {
             try {
                 getLogger().info(ChatColor.AQUA + "Shutting down Discord bot...");
+                // Pastikan ServerStatus selesai sebelum JDA shutdown
+                if (serverStatus != null) {
+                    serverStatus.stop();
+                    // Tunggu sebentar agar tugas asinkron selesai
+                    Thread.sleep(1000); // 1 detik untuk memastikan tugas selesai
+                }
                 jda.shutdown();
                 jda.awaitShutdown(Duration.ofMillis(5000));
                 getLogger().info(ChatColor.GREEN + "Discord bot disconnected successfully!");
